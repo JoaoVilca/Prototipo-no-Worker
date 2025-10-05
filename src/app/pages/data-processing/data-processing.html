@@ -1,0 +1,63 @@
+<!--
+  Componente visual para procesamiento de datos
+  - Permite seleccionar un archivo JSON
+  - Permite filtrar los datos por texto
+  - Muestra los resultados procesados en una lista
+  - El botón ejecuta el procesamiento
+  - Si no hay archivo, no se procesa nada
+  - Solo muestra el campo 'name' de cada elemento
+  - No hay manejo visual de errores
+-->
+<div class="processing-container">
+    <h2>Procesamiento de Datos (Sin Web Worker)</h2>
+
+    <div class="controls">
+        <!-- <input class="form-control" type="file" (change)="onFileSelected($event)" /> -->
+
+        <div class="mb-3">
+            <!-- <label for="formFile" class="form-label">Selecciona un archivo</label> -->
+            <input class="form-control" type="file" id="formFile" (change)="onFileSelected($event)">
+        </div>
+        <div class="buscar">
+            <div class="mb-3">
+                <!-- <label for="formFile" class="form-label">Selecciona un archivo</label> -->
+                <input class="form-control" type="text" [(ngModel)]="filter" placeholder="Buscar...">
+            </div>
+            <!-- <input type="text" [(ngModel)]="filter" placeholder="Buscar..." /> -->
+            <div class="mb-3">
+                <button class="btn btn-primary" (click)="process()">Procesar</button>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-warning" (click)="filtrar()">Filtrar</button>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-warning" (click)="ordenar()">Ordenar</button>
+            </div>
+        </div>
+        <div *ngIf="loading" class="message">Procesando datos, por favor espere...</div>
+
+        <!-- <div *ngFor="let item of data" class="data-item">
+            <div>
+                <span class="city-id">{{ item.id }}</span>
+                <span class="city-name">{{ item.name }}</span>
+            </div>
+        </div> -->
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of data" class="data-item">
+                    <th class="city-id">{{ item.id }}</th>
+                    <td class="city-name">{{ item.name }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
