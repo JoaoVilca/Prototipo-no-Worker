@@ -33,10 +33,10 @@ export class DataProcessing {
     // Limpiar mediciones anteriores
     performance.clearMarks();
     performance.clearMeasures();
-    
+
     performance.mark('start-total-process');
     if (!this.file) return alert('Seleccione un archivo');
-    
+
     // Número de hilos (solo main thread)
     const threadCount = 1;
     const mainThreadStart = performance.now();
@@ -45,11 +45,12 @@ export class DataProcessing {
       this.loading = true;
       this.cdr.detectChanges();
     });
+    const mainThreadMiddle = performance.now();
 
     this.loading = true;
     let mainThreadBlockingTime = 0;
     let totalTime = 0;
-    
+
     try {
       // Medir tiempo total de parseFile (incluye lectura + parsing)
       performance.mark('start-parse-file');
@@ -57,19 +58,20 @@ export class DataProcessing {
       performance.mark('end-parse-file');
       performance.measure('total-parse-file', 'start-parse-file', 'end-parse-file');
 
-      const mainThreadAfterProcessing = performance.now();
-      mainThreadBlockingTime = mainThreadAfterProcessing - mainThreadStart;
-      totalTime = performance.getEntriesByName('total-parse-file')[0]?.duration || 0;
 
+      
+      const updateUI = performance.now();
       this.zone.run(() => {
         this.data = processedData;
         this.originalData = [...processedData]; // Guardar copia para filtrado
         this.loading = false;
         this.cdr.detectChanges();
       });
-      
-      performance.mark('end-total-process');
-      performance.measure('total-process-time', 'start-total-process', 'end-total-process');
+
+      const mainThreadAfterProcessing = performance.now();
+      mainThreadBlockingTime = (mainThreadMiddle - mainThreadStart) + (mainThreadAfterProcessing - updateUI);
+
+
 
     } catch (error) {
       console.error(error);
@@ -78,25 +80,31 @@ export class DataProcessing {
         this.cdr.detectChanges();
       });
     } finally {
-      this.loading = false;
-      
-      // Obtener mediciones finales
-      const finalTotalTime = performance.getEntriesByName('total-process-time')[0]?.duration || 0;
-      const fileReadTime = performance.getEntriesByName('file-read-time')[0]?.duration || 0;
-      const jsonParseTime = performance.getEntriesByName('json-parse-time')[0]?.duration || 0;
-      
-      console.log('--- KPIs SIN WORKER --- PROCESAR');
-      console.log('Hilos utilizados:', threadCount);
-      console.log('Tiempo total de procesamiento:', finalTotalTime + ' ms');
-      console.log('Tiempo de lectura de archivo:', fileReadTime + ' ms');
-      console.log('Tiempo de parsing JSON:', jsonParseTime + ' ms');
-      console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
-      console.log('Registros procesados:', this.data.length);
-      
-      // Log adicional para debugging
-      console.log('--- Performance Entries ---');
-      performance.getEntriesByType('measure').forEach(entry => {
-        console.log(`${entry.name}: ${entry.duration.toFixed(2)} ms`);
+      setTimeout(() => {
+        performance.mark('end-total-process');
+        performance.measure('total-process-time', 'start-total-process', 'end-total-process');
+
+        this.loading = false;
+
+        // Obtener mediciones finales
+        totalTime = performance.getEntriesByName('total-parse-file')[0]?.duration || 0;
+        const finalTotalTime = performance.getEntriesByName('total-process-time')[0]?.duration || 0;
+        const fileReadTime = performance.getEntriesByName('file-read-time')[0]?.duration || 0;
+        const jsonParseTime = performance.getEntriesByName('json-parse-time')[0]?.duration || 0;
+
+        console.log('--- KPIs SIN WORKER --- PROCESAR');
+        console.log('Hilos utilizados:', threadCount);
+        console.log('Tiempo total de procesamiento:', finalTotalTime + ' ms');
+        console.log('Tiempo de lectura de archivo:', fileReadTime + ' ms');
+        console.log('Tiempo de parsing JSON:', totalTime + ' ms');
+        console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
+        console.log('Registros procesados:', this.data.length);
+
+        // Log adicional para debugging
+        //console.log('--- Performance Entries ---');
+        //performance.getEntriesByType('measure').forEach(entry => {
+        //console.log(`${entry.name}: ${entry.duration.toFixed(2)} ms`);
+        //});
       });
     }
   }
@@ -114,7 +122,7 @@ export class DataProcessing {
     // Limpiar mediciones anteriores
     performance.clearMarks();
     performance.clearMeasures();
-    
+
     performance.mark('start-total-filter');
     // Número de hilos (solo main thread)
     const threadCount = 1;
@@ -122,7 +130,7 @@ export class DataProcessing {
 
     this.loading = true;
     let mainThreadBlockingTime = 0;
-    
+
     try {
       performance.mark('start-filter-operation');
       const filteredData = await this.datasetService.filterData(this.originalData, this.filter);
@@ -137,24 +145,24 @@ export class DataProcessing {
         this.loading = false;
         this.cdr.detectChanges();
       });
-      
+
       performance.mark('end-total-filter');
       performance.measure('total-filter-time', 'start-total-filter', 'end-total-filter');
-      
+
     } catch (error) {
       console.error(error);
       this.loading = false;
     } finally {
       const totalFilterTime = performance.getEntriesByName('total-filter-time')[0]?.duration || 0;
       const filterOpTime = performance.getEntriesByName('filter-operation-time')[0]?.duration || 0;
-      
+
       console.log('--- KPIs SIN WORKER --- FILTRAR');
       console.log('Hilos utilizados:', threadCount);
       console.log('Tiempo total de filtrado:', totalFilterTime + ' ms');
       console.log('Tiempo de operación de filtrado:', filterOpTime + ' ms');
       console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
       console.log('Registros procesados:', this.data.length);
-      
+
       // Log adicional para debugging
       console.log('--- Performance Entries ---');
       performance.getEntriesByType('measure').forEach(entry => {
@@ -171,7 +179,7 @@ export class DataProcessing {
     // Limpiar mediciones anteriores
     performance.clearMarks();
     performance.clearMeasures();
-    
+
     performance.mark('start-total-sort');
     // Número de hilos (solo main thread)
     const threadCount = 1;
@@ -179,39 +187,42 @@ export class DataProcessing {
 
     this.loading = true;
     let mainThreadBlockingTime = 0;
-    
+
     try {
       performance.mark('start-sort-operation');
       const sortedData = await this.datasetService.sortData(this.data);
       performance.mark('end-sort-operation');
       performance.measure('total-sort-operation', 'start-sort-operation', 'end-sort-operation');
 
-      const mainThreadAfterProcessing = performance.now();
-      mainThreadBlockingTime = mainThreadAfterProcessing - mainThreadStart;
+      
 
+      const updateUI = performance.now();
       this.zone.run(() => {
         this.data = sortedData;
         this.loading = false;
         this.cdr.detectChanges();
       });
-      
+
+      const mainThreadAfterProcessing = performance.now();
+      mainThreadBlockingTime = mainThreadAfterProcessing - updateUI;
+
       performance.mark('end-total-sort');
       performance.measure('total-sort-time', 'start-total-sort', 'end-total-sort');
-      
+
     } catch (error) {
       console.error(error);
       this.loading = false;
     } finally {
       const totalSortTime = performance.getEntriesByName('total-sort-time')[0]?.duration || 0;
       const sortOpTime = performance.getEntriesByName('sort-operation-time')[0]?.duration || 0;
-      
+
       console.log('--- KPIs SIN WORKER --- ORDENAR');
       console.log('Hilos utilizados:', threadCount);
       console.log('Tiempo total de ordenamiento:', totalSortTime + ' ms');
       console.log('Tiempo de operación de ordenamiento:', sortOpTime + ' ms');
       console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
       console.log('Registros procesados:', this.data.length);
-      
+
       // Log adicional para debugging
       console.log('--- Performance Entries ---');
       performance.getEntriesByType('measure').forEach(entry => {
