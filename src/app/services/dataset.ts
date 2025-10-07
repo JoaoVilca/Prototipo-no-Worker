@@ -31,7 +31,10 @@ export class Dataset {
       result = [...data];
     } else {
       const f = filter.toLowerCase();
-      result = data.filter(item => JSON.stringify(item).toLowerCase().includes(f));
+      result = data.filter(item => 
+        //JSON.stringify(item).toLowerCase().includes(f)
+        item.name && item.name.toLowerCase().includes(f.toLowerCase())
+      );
     }
     performance.mark('end-filter-operation');
     performance.measure('filter-operation-time', 'start-filter-operation', 'end-filter-operation');

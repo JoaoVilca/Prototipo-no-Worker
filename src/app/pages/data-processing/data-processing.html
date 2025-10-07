@@ -12,18 +12,13 @@
     <h2>Procesamiento de Datos (Sin Web Worker)</h2>
 
     <div class="controls">
-        <!-- <input class="form-control" type="file" (change)="onFileSelected($event)" /> -->
-
         <div class="mb-3">
-            <!-- <label for="formFile" class="form-label">Selecciona un archivo</label> -->
             <input class="form-control" type="file" id="formFile" (change)="onFileSelected($event)">
         </div>
         <div class="buscar">
             <div class="mb-3">
-                <!-- <label for="formFile" class="form-label">Selecciona un archivo</label> -->
                 <input class="form-control" type="text" [(ngModel)]="filter" placeholder="Buscar...">
             </div>
-            <!-- <input type="text" [(ngModel)]="filter" placeholder="Buscar..." /> -->
             <div class="mb-3">
                 <button class="btn btn-primary" (click)="process()">Procesar</button>
             </div>
@@ -35,13 +30,6 @@
             </div>
         </div>
         <div *ngIf="loading" class="message">Procesando datos, por favor espere...</div>
-
-        <!-- <div *ngFor="let item of data" class="data-item">
-            <div>
-                <span class="city-id">{{ item.id }}</span>
-                <span class="city-name">{{ item.name }}</span>
-            </div>
-        </div> -->
 
         <table class="table">
             <thead>
@@ -57,7 +45,5 @@
                 </tr>
             </tbody>
         </table>
-
     </div>
-
 </div>

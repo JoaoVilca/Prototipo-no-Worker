@@ -137,14 +137,17 @@ export class DataProcessing {
       performance.mark('end-filter-operation');
       performance.measure('total-filter-operation', 'start-filter-operation', 'end-filter-operation');
 
-      const mainThreadAfterProcessing = performance.now();
-      mainThreadBlockingTime = mainThreadAfterProcessing - mainThreadStart;
+      
 
+      const updateUI = performance.now();
       this.zone.run(() => {
         this.data = filteredData;
         this.loading = false;
         this.cdr.detectChanges();
       });
+
+      const mainThreadAfterProcessing = performance.now();
+      mainThreadBlockingTime = mainThreadAfterProcessing - updateUI;
 
       performance.mark('end-total-filter');
       performance.measure('total-filter-time', 'start-total-filter', 'end-total-filter');
