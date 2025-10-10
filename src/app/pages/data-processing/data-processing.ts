@@ -90,13 +90,12 @@ export class DataProcessing {
         totalTime = performance.getEntriesByName('total-parse-file')[0]?.duration || 0;
         const finalTotalTime = performance.getEntriesByName('total-process-time')[0]?.duration || 0;
         const fileReadTime = performance.getEntriesByName('file-read-time')[0]?.duration || 0;
-        const jsonParseTime = performance.getEntriesByName('json-parse-time')[0]?.duration || 0;
 
         console.log('--- KPIs SIN WORKER --- PROCESAR');
         console.log('Hilos utilizados:', threadCount);
         console.log('Tiempo total de procesamiento:', finalTotalTime + ' ms');
         console.log('Tiempo de lectura de archivo:', fileReadTime + ' ms');
-        console.log('Tiempo de parsing JSON:', totalTime + ' ms');
+        console.log('Tiempo de parsing JSON:', totalTime + ' ms ');
         console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
         console.log('Registros procesados:', this.data.length);
 
@@ -162,7 +161,7 @@ export class DataProcessing {
       console.log('--- KPIs SIN WORKER --- FILTRAR');
       console.log('Hilos utilizados:', threadCount);
       console.log('Tiempo total de filtrado:', totalFilterTime + ' ms');
-      console.log('Tiempo de operación de filtrado:', filterOpTime + ' ms');
+      console.log('Tiempo de operación de filtrado:', filterOpTime + ' ms ');
       console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
       console.log('Registros procesados:', this.data.length);
 
@@ -197,15 +196,12 @@ export class DataProcessing {
       performance.mark('end-sort-operation');
       performance.measure('total-sort-operation', 'start-sort-operation', 'end-sort-operation');
 
-      
-
       const updateUI = performance.now();
       this.zone.run(() => {
         this.data = sortedData;
         this.loading = false;
         this.cdr.detectChanges();
       });
-
       const mainThreadAfterProcessing = performance.now();
       mainThreadBlockingTime = mainThreadAfterProcessing - updateUI;
 
@@ -222,7 +218,7 @@ export class DataProcessing {
       console.log('--- KPIs SIN WORKER --- ORDENAR');
       console.log('Hilos utilizados:', threadCount);
       console.log('Tiempo total de ordenamiento:', totalSortTime + ' ms');
-      console.log('Tiempo de operación de ordenamiento:', sortOpTime + ' ms');
+      console.log('Tiempo de operación de ordenamiento:', sortOpTime + ' ms ');
       console.log('Tiempo de bloqueo del hilo principal:', mainThreadBlockingTime + ' ms');
       console.log('Registros procesados:', this.data.length);
 
